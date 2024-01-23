@@ -429,4 +429,53 @@ describe('MigrationV2ToV3', () => {
 - 正常的单次迁移（v2 -> v3)
 - 完整的迁移 (v1 -> v3)
 
+### 数据库迁移
+
+数据库迁移需要在 LocalDB 类中进行书写，文件位于： `src/database/core/db.ts` ：
+
+```diff
+export class LocalDB extends Dexie {
+  public files: LobeDBTable<'files'>;
+  public sessions: LobeDBTable<'sessions'>;
+  public messages: LobeDBTable<'messages'>;
+  public topics: LobeDBTable<'topics'>;
+  public plugins: LobeDBTable<'plugins'>;
+  public sessionGroups: LobeDBTable<'sessionGroups'>;
+
+  constructor() {
+    super(LOBE_CHAT_LOCAL_DB_NAME);
+    this.version(1).stores(dbSchemaV1);
+    this.version(2).stores(dbSchemaV2);
+    this.version(3).stores(dbSchemaV3);
+    this.version(4)
+      .stores(dbSchemaV4)
++     .upgrade((trans) => this.upgradeToV4(trans));
+
+    this.files = this.table('files');
+    this.sessions = this.table('sessions');
+    this.messages = this.table('messages');
+    this.topics = this.table('topics');
+    this.plugins = this.table('plugins');
+    this.sessionGroups = this.table('sessionGroups');
+  }
+
++  /**
++   * 2024.01.22
++   *
++   * DB V3 to V4
++   * from `group = pinned` to `pinned:true`
++   */
++  upgradeToV4 = async (trans: Transaction) => {
++    const sessions = trans.table('sessions');
++    await sessions.toCollection().modify((session) => {
++      // translate boolean to number
++      session.pinned = session.group === 'pinned' ? 1 : 0;
++      session.group = 'default';
++    });
++  };
+}
+```
+
+## 总结
+
 以上就是 LobeChat Session Group 功能的完整实现流程。开发者可以参考本文档进行相关功能的开发和测试。
