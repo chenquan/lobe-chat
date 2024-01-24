@@ -2,9 +2,7 @@
 
 本文档旨在指导开发者了解我们在 LobeChat 中的完整功能实现流程。
 
-我们将以 sessionGroup 的实现为示例：[✨ feat: add session group manager](https://github.com/lobehub/lobe-chat/pull/1055) ， 介绍完整实现流程。
-
-本指南通过以下六个主要部分来阐述完整的实现流程：
+我们将以 sessionGroup 的实现为示例：[✨ feat: add session group manager](https://github.com/lobehub/lobe-chat/pull/1055) ， 通过以下六个主要部分来阐述完整的实现流程：
 
 1. 数据模型 / 数据库定义
 2. Service 实现 / Model 实现
